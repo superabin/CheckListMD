@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>確認清單播放器 - 單元測試報告</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'PingFang TC', 'Microsoft JhengHei', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+
+  <div class="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl border border-slate-100 overflow-hidden">
+    
+    <!-- 頂部漸層 Banner -->
+    <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-8 py-8 text-white shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="flex flex-col sm:flex-row items-center gap-6">
+          
+          <!-- 圓形 Donut 比例圖 -->
+          <div class="relative flex items-center justify-center h-24 w-24 shrink-0 bg-white/10 rounded-full p-1 border border-white/20 shadow-inner">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <!-- 背景灰色圈 -->
+              <path class="text-white/20" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <!-- 綠色進度圈 100% -->
+              <path class="text-emerald-300" stroke-width="3.5" stroke-dasharray="100, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <div class="absolute text-center">
+              <span class="text-xl font-extrabold text-white leading-none">100%</span>
+              <p class="text-[9px] text-emerald-200 font-bold tracking-wider leading-none mt-0.5">PASS</p>
+            </div>
+          </div>
+
+          <div class="text-center sm:text-left">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/30 text-emerald-100 border border-emerald-400/20 backdrop-blur-sm">
+              🟢 自動化驗證完成
+            </span>
+            <h1 class="text-3xl font-bold tracking-tight mt-2">單元測試報告</h1>
+            <p class="text-teal-50/90 text-sm mt-1">「確認清單播放器」核心 JavaScript 模組之測試報告</p>
+          </div>
+        </div>
+        
+        <!-- 狀態徽章 -->
+        <div class="flex items-center gap-4 bg-white/10 p-4 rounded-xl border border-white/10 backdrop-blur-md self-center">
+          <div class="text-right">
+            <p class="text-xs text-teal-200 font-medium">TEST RESULTS</p>
+            <p class="text-2xl font-bold">16 / 16 PASSED</p>
+          </div>
+          <div class="h-12 w-12 rounded-full bg-emerald-400 flex items-center justify-center text-white shadow-lg animate-pulse">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主內容區 -->
+    <div class="p-8 space-y-10">
+      
+      <!-- 第一區：測試概覽 Grid -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          測試環境與概覽 (Environment Overview)
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <p class="text-xs text-slate-400 font-medium">測試框架</p>
+            <p class="text-lg font-bold text-slate-700 mt-1">Vitest v4.1.7</p>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <p class="text-xs text-slate-400 font-medium">DOM 模擬</p>
+            <p class="text-lg font-bold text-slate-700 mt-1">jsdom v22.0.0</p>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <p class="text-xs text-slate-400 font-medium">測試案例總數</p>
+            <p class="text-lg font-bold text-emerald-600 mt-1">16 Cases Passed</p>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <p class="text-xs text-slate-400 font-medium">通過率 (Pass Rate)</p>
+            <p class="text-lg font-bold text-emerald-600 mt-1">100 %</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 第二區：測試套件列表 -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          測試套件執行摘要 (Test Suites)
+        </h2>
+        
+        <div class="overflow-hidden border border-slate-100 rounded-xl">
+          <table class="min-w-full divide-y divide-slate-100">
+            <thead class="bg-slate-50">
+              <tr>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">測試檔案</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">目標模組</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">環境</th>
+                <th scope="col" class="px-6 py-3.5 class text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">案例數</th>
+                <th scope="col" class="px-6 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">測試重點</th>
+                <th scope="col" class="px-6 py-3.5 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">狀態</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-slate-100 text-sm">
+              <tr class="hover:bg-slate-50/50 transition">
+                <td class="px-6 py-4 font-mono font-medium text-blue-600">TemplateExtractor.test.js</td>
+                <td class="px-6 py-4 font-mono text-slate-600">TemplateExtractor</td>
+                <td class="px-6 py-4"><span class="px-2 py-0.5 rounded text-xs bg-purple-50 text-purple-600 border border-purple-100">jsdom</span></td>
+                <td class="px-6 py-4 text-center font-semibold text-slate-700">4</td>
+                <td class="px-6 py-4 text-slate-500">DOM Markdown 內容安全提取、防 HTML 轉義字元干擾</td>
+                <td class="px-6 py-4 text-center"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600">PASS</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 transition">
+                <td class="px-6 py-4 font-mono font-medium text-blue-600">MarkdownParser.test.js</td>
+                <td class="px-6 py-4 font-mono text-slate-600">MarkdownParser</td>
+                <td class="px-6 py-4"><span class="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600 border border-slate-200">Node</span></td>
+                <td class="px-6 py-4 text-center font-semibold text-slate-700">6</td>
+                <td class="px-6 py-4 text-slate-500">複選、單選、問答等自訂語法 Regex 預處理與編譯器套接</td>
+                <td class="px-6 py-4 text-center"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600">PASS</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 transition">
+                <td class="px-6 py-4 font-mono font-medium text-blue-600">StateSynchronizer.test.js</td>
+                <td class="px-6 py-4 font-mono text-slate-600">StateSynchronizer</td>
+                <td class="px-6 py-4"><span class="px-2 py-0.5 rounded text-xs bg-purple-50 text-purple-600 border border-purple-100">jsdom</span></td>
+                <td class="px-6 py-4 text-center font-semibold text-slate-700">3</td>
+                <td class="px-6 py-4 text-slate-500">事件代理監聽、反應式狀態同步、監聽器卸載清理</td>
+                <td class="px-6 py-4 text-center"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600">PASS</span></td>
+              </tr>
+              <tr class="hover:bg-slate-50/50 transition">
+                <td class="px-6 py-4 font-mono font-medium text-blue-600">DataExporter.test.js</td>
+                <td class="px-6 py-4 font-mono text-slate-600">DataExporter</td>
+                <td class="px-6 py-4"><span class="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600 border border-slate-200">Node</span></td>
+                <td class="px-6 py-4 text-center font-semibold text-slate-700">3</td>
+                <td class="px-6 py-4 text-slate-500">台灣本地時間格式化 (AM/PM)、匯出結構深拷貝驗證</td>
+                <td class="px-6 py-4 text-center"><span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600">PASS</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 第三區：終端機日誌 -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Console 終端機執行日誌 (Execution Logs)
+        </h2>
+        
+        <div class="bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800">
+          <div class="bg-slate-800 px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-mono">
+            <span>TERMINAL OUTPUT</span>
+            <span class="text-emerald-400">SUCCESS</span>
+          </div>
+          <pre class="p-5 text-sm text-emerald-300 font-mono overflow-x-auto leading-relaxed">
+> checklistmd@1.0.0 test
+> vitest run
+
+ RUN  v4.1.7 C:/MyProg/AI/CheckListMD
+
+ ✓ test/MarkdownParser.test.js (6 tests) 6ms
+ ✓ test/DataExporter.test.js (3 tests) 10ms
+ ✓ test/TemplateExtractor.test.js (4 tests) 13ms
+ ✓ test/StateSynchronizer.test.js (3 tests) 20ms
+
+ Test Files  4 passed (4)
+      Tests  16 passed (16)
+   Start at  22:00:20
+   Duration  1.86s (transform 127ms, setup 0ms, import 219ms, tests 49ms, environment 3.01s)
+          </pre>
+        </div>
+      </section>
+
+      <!-- 第四區：詳細測試案例說明 -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2 border-b border-slate-100 pb-2">
+          <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+          </svg>
+          詳細測試案例明細 (Detailed Cases)
+        </h2>
+        
+        <div class="space-y-6">
+          
+          <!-- TemplateExtractor -->
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+            <div class="bg-slate-50 px-5 py-3 flex justify-between items-center border-b border-slate-100">
+              <h3 class="font-bold text-slate-700">TemplateExtractor.test.js</h3>
+              <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">4 / 4 PASSED</span>
+            </div>
+            <div class="p-5 divide-y divide-slate-50">
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">應正確定義 extract 函數</p>
+                  <p class="text-xs text-slate-400 mt-0.5">驗證 TemplateExtractor.extract 方法存在且型態為 function。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">當 selector 不存在時應拋出 Error</p>
+                  <p class="text-xs text-slate-400 mt-0.5">當 DOM 中找不到指定元素時，應拋出帶有「找不到指定的範本標籤」之明確錯誤。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">當無 selector 參數時應拋出錯誤</p>
+                  <p class="text-xs text-slate-400 mt-0.5">呼叫方法未帶任何參數時，應預防性拋出「必須提供指定的 selector 參數」錯誤。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">應正確提取含有特殊 HTML 字元的原始內容，無轉義</p>
+                  <p class="text-xs text-slate-400 mt-0.5">驗證從 script 標籤提取包含 <code>* &lt;測試&gt; &amp; "雙引號"</code> 的文字時，資料無任何轉義，確保 Markdown 安全解析。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MarkdownParser -->
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+            <div class="bg-slate-50 px-5 py-3 flex justify-between items-center border-b border-slate-100">
+              <h3 class="font-bold text-slate-700">MarkdownParser.test.js</h3>
+              <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">6 / 6 PASSED</span>
+            </div>
+            <div class="p-5 divide-y divide-slate-50">
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">當未提供 mdEngine 實例時應拋出 Error</p>
+                  <p class="text-xs text-slate-400 mt-0.5">驗證當 mdEngine 未被傳入或無 render 方法時，主動拋出錯誤。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">應正確將空字串直接返回</p>
+                  <p class="text-xs text-slate-400 mt-0.5">若傳入空字串或無內容，應直接返回空字串，防止系統例外崩潰。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">應正確將複選題預處理為 HTML Checkbox 標籤</p>
+                  <p class="text-xs text-slate-400 mt-0.5">驗證 <code>- [ ] 項目 A</code> (未選取) 與 <code>- [x] 項目 B</code> (預選) 能轉出對應 checkbox 及 checked 狀態。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">應正確將單選題預處理為 HTML Radio 標籤</p>
+                  <p class="text-xs text-slate-400 mt-0.5">驗證 <code>( ) 佈署：全新安裝</code> 與 <code>(x) 佈署：升級</code> 能轉出相同 name、不同 value 且具備正確 checked 之 radio 標籤。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">應正確將問答題預處理為 HTML Input 與 Textarea 標籤</p>
+                  <p class="text-xs text-slate-400 mt-0.5">驗證問答題語法 <code>[text: 負責人]</code> 與 <code>[textarea: 備註]</code> 能轉出 input 及 textarea 元件。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">應呼叫 mdEngine.render 完成渲染</p>
+                  <p class="text-xs text-slate-400 mt-0.5">使用 Mock 引擎，驗證預處理後的字串確實被傳入 markdown-it 引擎執行最終渲染。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- StateSynchronizer -->
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+            <div class="bg-slate-50 px-5 py-3 flex justify-between items-center border-b border-slate-100">
+              <h3 class="font-bold text-slate-700">StateSynchronizer.test.js</h3>
+              <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">3 / 3 PASSED</span>
+            </div>
+            <div class="p-5 divide-y divide-slate-50">
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">scanAndSync 應正確掃描 DOM 元件並回填初始狀態</p>
+                  <p class="text-xs text-slate-400 mt-0.5">在 jsdom 模擬的 DOM 容器中，確認能自動擷取預設 checkbox、radio 與文字輸入的值並回寫資料物件。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">handleEvent 應在事件觸發時更新資料狀態</p>
+                  <p class="text-xs text-slate-400 mt-0.5">模擬更動輸入值，觸發變更處理程序，確認資料物件即時變更同步。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">bind 應綁定事件監聽器，並於資料變更時同步更新，清理函式應能取消監聽</p>
+                  <p class="text-xs text-slate-400 mt-0.5">驗證綁定後的事件代理同步正常，且在執行 Cleanup unbind 函式後，後續的事件不會再造成狀態同步，避免記憶體洩漏。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DataExporter -->
+          <div class="border border-slate-100 rounded-xl overflow-hidden shadow-sm">
+            <div class="bg-slate-50 px-5 py-3 flex justify-between items-center border-b border-slate-100">
+              <h3 class="font-bold text-slate-700">DataExporter.test.js</h3>
+              <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">3 / 3 PASSED</span>
+            </div>
+            <div class="p-5 divide-y divide-slate-50">
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">getFormattedTime 應正確格式化下午時間</p>
+                  <p class="text-xs text-slate-400 mt-0.5">傳入特定的下午時間，驗證輸出是否為台灣本地格式 <code>YYYY/M/D 下午 H:mm:ss</code>，如 <code>2026/5/23 下午 9:40:00</code>。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">getFormattedTime 應正確格式化上午時間</p>
+                  <p class="text-xs text-slate-400 mt-0.5">傳入特定上午時間，驗證輸出是否為 <code>YYYY/M/D 上午 H:mm:ss</code>。</p>
+                </div>
+              </div>
+              <div class="py-2.5 flex items-start gap-2.5">
+                <span class="text-emerald-500 mt-0.5">✔</span>
+                <div>
+                  <p class="font-medium text-slate-700">exportToJSON 應產出符合 Schema 規格之資料結構</p>
+                  <p class="text-xs text-slate-400 mt-0.5">驗證導出物件中正確具有 <code>export_at</code> 與 <code>results</code> 屬性，且 <code>results</code> 資料為傳入物件的深拷貝（Deep Copy），確保防改寫安全。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 頁尾 -->
+    <div class="bg-slate-50 px-8 py-4 border-t border-slate-100 text-center text-xs text-slate-400">
+      <span>單元測試報告產生時間：2026-05-23 | 技術棧：Vitest + jsdom + Tailwind CSS</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

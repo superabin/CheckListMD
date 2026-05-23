@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>離線確認清單播放器 (Checklist Player)</title>
+  
+  <!-- 
+    離線部署備註：
+    在完全斷網的極致離線環境下，您可以將以下 CDN 資源下載至本地 lib/ 目錄，並調整為相對路徑：
+    - Tailwind CSS -> ./lib/tailwind.min.css (或使用編譯後的靜態 CSS)
+    - Vue 3 -> ./lib/vue.global.prod.js
+    - markdown-it -> ./lib/markdown-it.min.js
+  -->
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'SF Pro Icons', 'PingFang TC', 'Microsoft JhengHei', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- markdown-it CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.1/markdown-it.min.js"></script>
+  
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  
+  <style>
+    /* 自訂 Markdown 表單元件與排版樣式，確保在 Vue v-html 渲染時能有精美呈現 */
+    .prose h1 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 0.5rem;
+    }
+    .prose h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .prose p {
+      margin-bottom: 1rem;
+      color: #475569;
+    }
+    /* 動態表單控制項微小動畫 */
+    .form-checkbox, .form-radio {
+      transition: all 0.2s ease-in-out;
+    }
+    .form-checkbox:hover, .form-radio:hover {
+      transform: scale(1.05);
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-tr from-slate-100 to-slate-200/60 min-h-screen text-slate-800 antialiased py-12 px-4 sm:px-6 lg:px-8">
+
+  <div id="app" class="max-w-4xl mx-auto bg-white shadow-2xl rounded-2xl border border-slate-100/80 overflow-hidden transition-all duration-300">
+    
+    <!-- 頂部 Header 區 -->
+    <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 px-8 py-6 text-white shadow-md">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">離線確認清單播放器</h1>
+          <p class="text-indigo-100/90 text-sm mt-1">完全免伺服器、純地端解析渲染與結構化 JSON 匯出工具</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white backdrop-blur-sm">
+          🟢 離線運行中
+        </span>
+      </div>
+    </div>
+
+    <!-- 主內容區 -->
+    <div class="p-8 space-y-8">
+      
+      <!-- 渲染後的 Markdown 動態表單 -->
+      <div class="prose max-w-none">
+        <form ref="formContainer" @submit.prevent class="space-y-4">
+          <div v-html="renderedHtml"></div>
+        </form>
+      </div>
+
+      <!-- 即時資料預覽與匯出按鈕區 -->
+      <div class="border-t border-slate-200/80 pt-8 space-y-6">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-sm text-slate-500">
+            填寫進度：<span class="font-medium text-slate-800">{{ filledCount }}</span> 個已填寫欄位
+          </div>
+          <button 
+            @click="exportData"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:from-blue-800 active:to-indigo-800 shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            一鍵下載 JSON 紀錄
+          </button>
+        </div>
+
+        <!-- 即時 JSON 預覽卡片 (Wow factor) -->
+        <div class="bg-slate-900 rounded-xl overflow-hidden shadow-inner border border-slate-800">
+          <div class="bg-slate-800 px-4 py-2 flex items-center justify-between text-xs text-slate-400 font-mono">
+            <span>LIVE JSON DATA PREVIEW</span>
+            <span class="text-emerald-400 flex items-center">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
+              同步正常
+            </span>
+          </div>
+          <pre class="p-4 text-sm text-emerald-300 font-mono overflow-x-auto max-h-60 leading-relaxed">{{ JSON.stringify(formData, null, 2) }}</pre>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 頁尾說明 -->
+    <div class="bg-slate-50 px-8 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+      <span>設計規格書參照：c:\MyProg\AI\CheckListMD\doc\detail-design.md</span>
+      <span>技術棧：Vue 3 + markdown-it + Tailwind CSS</span>
+    </div>
+
+  </div>
+
+  <!-- 內嵌 Markdown 題目範本 -->
+  <script id="markdown-template" type="text/markdown">
+# 伺服器驗收確認清單
+
+## 1. 基本資訊與環境驗證
+[text: 驗收負責人]
+[text: 佈署伺服器 IP]
+
+## 2. 伺服器規格與狀態確認 (複選)
+- [x] CPU 核心數與記憶體大小符合契約規格 (例如: 8C/32G)
+- [ ] 地端防火牆連接埠 (80, 443, 22) 已開啟
+- [ ] 系統硬碟與資料硬碟分割區已正確掛載
+- [ ] NTP 伺服器時間同步正常
+
+## 3. 部署模式 (單選)
+( ) 佈署類型：全新安裝 (Clean Install)
+(x) 佈署類型：覆蓋升級 (Upgrade)
+( ) 佈署類型：備援節點部署 (Secondary Node)
+
+## 4. 異常與備註說明
+[textarea: 備註與異常說明]
+  </script>
+
+  <!-- 核心 JavaScript 模組實作 -->
+  <script type="module">
+    // --- 1. TemplateExtractor 模組 ---
+    const TemplateExtractor = {
+      extract(selector) {
+        if (!selector) {
+          throw new Error('必須提供指定的 selector 參數');
+        }
+        const element = document.querySelector(selector);
+        if (!element) {
+          throw new Error(`找不到指定的範本標籤: ${selector}`);
+        }
+        return element.textContent || element.innerText || '';
+      }
+    };
+
+    // --- 2. MarkdownParser 模組 ---
+    const MarkdownParser = {
+      parse(markdownText, mdEngine) {
+        if (!markdownText) return '';
+        if (!mdEngine || typeof mdEngine.render !== 'function') {
+          throw new Error('必須提供有效的 mdEngine 實例');
+        }
+        
+        let processedText = markdownText;
+
+        // 1. 處理複選題預選 (- [x] 題目文字)
+        processedText = processedText.replace(/^-\s+\[[xX]\]\s+(.+)$/gm, (match, title) => {
+          const cleanTitle = title.trim();
+          return `<div class="flex items-center my-2"><input type="checkbox" name="${cleanTitle}" data-type="checkbox" checked class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"><span class="ml-2">${cleanTitle}</span></div>`;
+        });
+
+        // 2. 處理複選題未選 (- [ ] 題目文字)
+        processedText = processedText.replace(/^-\s+\[\s*\]\s+(.+)$/gm, (match, title) => {
+          const cleanTitle = title.trim();
+          return `<div class="flex items-center my-2"><input type="checkbox" name="${cleanTitle}" data-type="checkbox" class="form-checkbox h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"><span class="ml-2">${cleanTitle}</span></div>`;
+        });
+
+        // 3. 處理單選題預選 ((x) 群組名稱：選項文字 或 (*) 群組名稱：選項文字)
+        processedText = processedText.replace(/\([xX*]\)\s*([^：\n]+)：([^：\n]+)/g, (match, group, option) => {
+          const cleanGroup = group.trim();
+          const cleanOption = option.trim();
+          return `<label class="inline-flex items-center mr-4 my-1"><input type="radio" name="${cleanGroup}" value="${cleanOption}" data-type="radio" checked class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-2">${cleanOption}</span></label>`;
+        });
+
+        // 4. 處理單選題未選 (( ) 群組名稱：選項文字)
+        processedText = processedText.replace(/\(\s*\)\s*([^：\n]+)：([^：\n]+)/g, (match, group, option) => {
+          const cleanGroup = group.trim();
+          const cleanOption = option.trim();
+          return `<label class="inline-flex items-center mr-4 my-1"><input type="radio" name="${cleanGroup}" value="${cleanOption}" data-type="radio" class="form-radio h-5 w-5 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-2">${cleanOption}</span></label>`;
+        });
+
+        // 5. 處理多行問答 [textarea: 提示欄位名]
+        processedText = processedText.replace(/\[textarea:\s*([^\]]+)\]/g, (match, label) => {
+          const cleanLabel = label.trim();
+          return `<div class="my-3"><label class="block text-sm font-medium text-slate-700">${cleanLabel}</label><textarea name="${cleanLabel}" placeholder="${cleanLabel}" data-type="textarea" rows="3" class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition duration-200"></textarea></div>`;
+        });
+
+        // 6. 處理單行問答 [text: 提示欄位名]
+        processedText = processedText.replace(/\[text:\s*([^\]]+)\]/g, (match, label) => {
+          const cleanLabel = label.trim();
+          return `<div class="my-3"><label class="block text-sm font-medium text-slate-700">${cleanLabel}</label><input type="text" name="${cleanLabel}" placeholder="${cleanLabel}" data-type="text" class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition duration-200"></div>`;
+        });
+
+        return mdEngine.render(processedText);
+      }
+    };
+
+    // --- 3. StateSynchronizer 模組 ---
+    const StateSynchronizer = {
+      bind(container, formDataRef) {
+        if (!container) return () => {};
+
+        for (const key in formDataRef) {
+          delete formDataRef[key];
+        }
+
+        this.scanAndSync(container, formDataRef);
+
+        const changeHandler = (event) => {
+          this.handleEvent(event, formDataRef);
+        };
+
+        const inputHandler = (event) => {
+          const target = event.target;
+          const dataType = target.getAttribute('data-type');
+          if (dataType === 'text' || dataType === 'textarea') {
+            this.handleEvent(event, formDataRef);
+          }
+        };
+
+        container.addEventListener('change', changeHandler);
+        container.addEventListener('input', inputHandler);
+
+        return () => {
+          container.removeEventListener('change', changeHandler);
+          container.removeEventListener('input', inputHandler);
+        };
+      },
+
+      handleEvent(event, formDataRef) {
+        const target = event.target;
+        const name = target.getAttribute('name');
+        if (!name) return;
+
+        const dataType = target.getAttribute('data-type') || target.type;
+
+        if (dataType === 'checkbox') {
+          formDataRef[name] = target.checked;
+        } else if (dataType === 'radio') {
+          if (target.checked) {
+            formDataRef[name] = target.value;
+          }
+        } else {
+          formDataRef[name] = target.value;
+        }
+      },
+
+      scanAndSync(container, formDataRef) {
+        const inputs = container.querySelectorAll('[name]');
+        inputs.forEach((input) => {
+          const name = input.getAttribute('name');
+          const dataType = input.getAttribute('data-type') || input.type;
+
+          if (dataType === 'checkbox') {
+            formDataRef[name] = input.checked;
+          } else if (dataType === 'radio') {
+            if (input.checked) {
+              formDataRef[name] = input.value;
+            } else if (formDataRef[name] === undefined) {
+              formDataRef[name] = '';
+            }
+          } else {
+            formDataRef[name] = input.value || '';
+          }
+        });
+      }
+    };
+
+    // --- 4. DataExporter 模組 ---
+    const DataExporter = {
+      getFormattedTime(date = new Date()) {
+        const yyyy = date.getFullYear();
+        const mm = date.getMonth() + 1;
+        const dd = date.getDate();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+
+        const ampm = hours >= 12 ? '下午' : '上午';
+        const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+        const displayMinutes = String(minutes).padStart(2, '0');
+        const displaySeconds = String(seconds).padStart(2, '0');
+
+        return `${yyyy}/${mm}/${dd} ${ampm} ${displayHours}:${displayMinutes}:${displaySeconds}`;
+      },
+
+      exportToJSON(formData, date = new Date()) {
+        const exportData = {
+          export_at: this.getFormattedTime(date),
+          results: { ...formData }
+        };
+
+        const jsonString = JSON.stringify(exportData, null, 2);
+        
+        if (typeof Blob !== 'undefined' && typeof document !== 'undefined') {
+          const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8;' });
+          const yyyy = date.getFullYear();
+          const mm = String(date.getMonth() + 1).padStart(2, '0');
+          const dd = String(date.getDate()).padStart(2, '0');
+          const filename = `checklist-${yyyy}${mm}${dd}.json`;
+
+          const link = document.createElement('a');
+          if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          }
+        }
+
+        return exportData;
+      }
+    };
+
+    // --- Vue 3 應用程式初始化 ---
+    const { createApp, ref, reactive, onMounted, onUnmounted, nextTick, computed } = Vue;
+
+    createApp({
+      setup() {
+        const formData = reactive({});
+        const renderedHtml = ref('');
+        let cleanupSync = null;
+
+        // 計算已填寫的欄位數
+        const filledCount = computed(() => {
+          let count = 0;
+          for (const key in formData) {
+            if (typeof formData[key] === 'boolean') {
+              if (formData[key]) count++;
+            } else if (typeof formData[key] === 'string') {
+              if (formData[key].trim() !== '') count++;
+            }
+          }
+          return count;
+        });
+
+        onMounted(() => {
+          try {
+            // 1. 提取內嵌 Markdown 內容
+            const rawMarkdown = TemplateExtractor.extract('#markdown-template');
+            
+            // 2. 初始化 markdown-it，啟用 HTML 支持以防自訂 HTML 表單標籤被過濾
+            const md = window.markdownit({ html: true });
+            
+            // 3. 解析並編譯為標準 HTML
+            renderedHtml.value = MarkdownParser.parse(rawMarkdown, md);
+
+            // 4. 等待 DOM 更新後，綁定事件監聽器進行狀態同步與初始化掃描
+            nextTick(() => {
+              const formEl = document.querySelector('form');
+              cleanupSync = StateSynchronizer.bind(formEl, formData);
+            });
+          } catch (err) {
+            console.error('播放器初始化失敗：', err);
+          }
+        });
+
+        onUnmounted(() => {
+          if (cleanupSync) {
+            cleanupSync();
+          }
+        });
+
+        // 匯出資料
+        const exportData = () => {
+          DataExporter.exportToJSON(formData);
+        };
+
+        return {
+          formData,
+          renderedHtml,
+          filledCount,
+          exportData
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
